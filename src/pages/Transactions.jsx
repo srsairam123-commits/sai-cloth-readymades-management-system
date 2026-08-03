@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Paper from "@mui/material/Paper";
@@ -14,13 +16,15 @@ import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
 import TransactionTable from "../components/dashboard/TransactionTable";
 import AddTransactionDialog from "../components/dialogs/AddTransactionDialog";
+import LoadingOverlay from "../components/common/LoadingOverlay";
 
-import { useState, useEffect } from "react";
 import { getTransactions } from "../services/api";
 
 function Transactions() {
 
   const role = localStorage.getItem("role");
+
+  const [loading, setLoading] = useState(false);
 
   const [open, setOpen] = useState(false);
 
@@ -37,12 +41,26 @@ function Transactions() {
 
   async function loadTransactions() {
 
-    const response = await getTransactions();
+    setLoading(true);
 
-    if (response.success) {
+    try {
 
-      setTransactions(response.transactions);
-      setFilteredTransactions(response.transactions);
+      const response = await getTransactions();
+
+      if (response.success) {
+
+        setTransactions(response.transactions);
+        setFilteredTransactions(response.transactions);
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -54,22 +72,22 @@ function Transactions() {
 
     if (date) {
 
-  data = data.filter((item) => {
+      data = data.filter((item) => {
 
-    const d = new Date(item.date);
+        const d = new Date(item.date);
 
-    const itemDate =
-      d.getFullYear() +
-      "-" +
-      String(d.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(d.getDate()).padStart(2, "0");
+        const itemDate =
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0");
 
-    return itemDate === date;
+        return itemDate === date;
 
-  });
+      });
 
-}
+    }
 
     if (type) {
 
@@ -113,9 +131,18 @@ function Transactions() {
 
   return (
 
-    <Box sx={{ display: "flex", bgcolor: "#F4F7FC" }}>
+    <Box
+      sx={{
+        display: "flex",
+        bgcolor: "#F4F7FC",
+        minHeight: "100vh",
+      }}
+    >
+
+      <LoadingOverlay open={loading} />
 
       <Navbar />
+
       <Sidebar />
 
       <Box
@@ -165,6 +192,7 @@ function Transactions() {
               onChange={(e) => setType(e.target.value)}
               sx={{ minWidth: 170 }}
             >
+
               <MenuItem value="">
                 All
               </MenuItem>

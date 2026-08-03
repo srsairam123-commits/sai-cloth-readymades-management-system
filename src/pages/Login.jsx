@@ -13,7 +13,9 @@ import { useNavigate } from "react-router-dom";
 
 import logo from "../assets/logo.png";
 import { login } from "../services/api";
+
 import AppSnackbar from "../components/common/AppSnackbar";
+import LoadingOverlay from "../components/common/LoadingOverlay";
 
 function Login() {
 
@@ -53,25 +55,41 @@ function Login() {
 
     setLoading(true);
 
-    const response = await login(username, password);
+    try {
 
-    setLoading(false);
+      const response = await login(username, password);
 
-    if (response.success) {
+      if (response.success) {
 
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", username);
-      localStorage.setItem("role", response.role);
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username", username);
+        localStorage.setItem("role", response.role);
 
-      navigate("/dashboard");
+        navigate("/dashboard");
 
-    } else {
+      } else {
+
+        setSnackbar({
+          open: true,
+          message: response.message,
+          severity: "error",
+        });
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
 
       setSnackbar({
         open: true,
-        message: response.message,
+        message: "Something went wrong. Please try again.",
         severity: "error",
       });
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -91,6 +109,8 @@ function Login() {
         p: 2,
       }}
     >
+
+      <LoadingOverlay open={loading} />
 
       <Card
         elevation={12}

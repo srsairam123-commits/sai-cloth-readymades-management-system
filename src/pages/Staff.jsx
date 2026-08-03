@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AddStaffDialog from "../components/dialogs/AddStaffDialog";
+
 import {
   Box,
   Toolbar,
@@ -20,40 +20,72 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
+import AddStaffDialog from "../components/dialogs/AddStaffDialog";
+import LoadingOverlay from "../components/common/LoadingOverlay";
 
 import { getUsers } from "../services/api";
 
 function Staff() {
 
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [open, setOpen] = useState(false);
+
   const [selectedUser, setSelectedUser] = useState(null);
+
   useEffect(() => {
     loadUsers();
   }, []);
 
   async function loadUsers() {
 
-    const response = await getUsers();
+    setLoading(true);
 
-    if (response.success) {
-      setUsers(response.users);
+    try {
+
+      const response = await getUsers();
+
+      if (response.success) {
+
+        setUsers(response.users);
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
+
     }
 
   }
+
   function handleEdit(user) {
 
-  setSelectedUser(user);
+    setSelectedUser(user);
 
-  setOpen(true);
+    setOpen(true);
 
-}
+  }
 
   return (
 
-    <Box sx={{ display: "flex", bgcolor: "#F4F7FC" }}>
+    <Box
+      sx={{
+        display: "flex",
+        bgcolor: "#F4F7FC",
+        minHeight: "100vh",
+      }}
+    >
+
+      <LoadingOverlay open={loading} />
 
       <Navbar />
+
       <Sidebar />
 
       <Box
@@ -93,15 +125,18 @@ function Staff() {
             </Typography>
 
             <Button
-  variant="contained"
-  startIcon={<PersonAddIcon />}
-  onClick={() => {
-    setSelectedUser(null);
-    setOpen(true);
-  }}
->
-  Add Staff
-</Button>
+              variant="contained"
+              startIcon={<PersonAddIcon />}
+              onClick={() => {
+
+                setSelectedUser(null);
+
+                setOpen(true);
+
+              }}
+            >
+              Add Staff
+            </Button>
 
           </Box>
 
@@ -141,7 +176,10 @@ function Staff() {
 
                 {users.map((user, index) => (
 
-                  <TableRow key={index} hover>
+                  <TableRow
+                    key={index}
+                    hover
+                  >
 
                     <TableCell align="center">
                       {user.name}
@@ -171,13 +209,13 @@ function Staff() {
                     <TableCell align="center">
 
                       <Button
-  variant="outlined"
-  size="small"
-  startIcon={<EditIcon />}
-  onClick={() => handleEdit(user)}
->
-  Edit
-</Button>
+                        variant="outlined"
+                        size="small"
+                        startIcon={<EditIcon />}
+                        onClick={() => handleEdit(user)}
+                      >
+                        Edit
+                      </Button>
 
                     </TableCell>
 
@@ -192,20 +230,26 @@ function Staff() {
           </TableContainer>
 
         </Paper>
+
         <AddStaffDialog
-  open={open}
-  handleClose={() => {
-    setOpen(false);
-    setSelectedUser(null);
-  }}
-  loadUsers={loadUsers}
-  selectedUser={selectedUser}
-/>
+          open={open}
+          handleClose={() => {
+
+            setOpen(false);
+
+            setSelectedUser(null);
+
+          }}
+          loadUsers={loadUsers}
+          selectedUser={selectedUser}
+        />
+
       </Box>
 
     </Box>
-    
+
   );
+
 }
 
 export default Staff;
