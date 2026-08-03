@@ -132,7 +132,6 @@ const handleSaveSettings = async () => {
   return (
 
     <Box sx={{ display: "flex", bgcolor: "#F4F7FC" }}>
-      <LoadingOverlay open={loading} />
       <Navbar />
       <Sidebar />
 
