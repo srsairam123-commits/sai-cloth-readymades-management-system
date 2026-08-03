@@ -24,7 +24,6 @@ function Dashboard() {
 
   const [rows, setRows] = useState([]);
   const [allRows, setAllRows] = useState([]);
-
   const [loading, setLoading] = useState(false);
 
   const [date, setDate] = useState("");
@@ -46,7 +45,9 @@ function Dashboard() {
       if (response.success) {
 
         setAllRows(response.transactions);
-        setRows(response.transactions.slice(0, 10));
+
+        // Send all rows to TransactionTable
+        setRows(response.transactions);
 
       }
 
@@ -113,7 +114,8 @@ function Dashboard() {
     setType("");
     setRemarks("");
 
-    setRows(allRows.slice(0, 10));
+    // Restore all rows
+    setRows(allRows);
 
   };
 
@@ -127,7 +129,6 @@ function Dashboard() {
       }}
     >
 
-      {/* Loading Spinner */}
       <LoadingOverlay open={loading} />
 
       <Navbar />
